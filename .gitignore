@@ -38,3 +38,6 @@ jspm_packages
 
 # Vim
 *.sw[a-z]
+
+# Config
+config/local*.*

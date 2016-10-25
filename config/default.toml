@@ -1,0 +1,15 @@
+[default]
+
+[env]
+
+[ansible]
+playbookDir = './'
+inventoryDir = './inventory/'
+
+[githubhook]
+host = '0.0.0.0'
+port = 3402
+secret = 'TOPSECRET'
+wildcard = false
+
+[listeners]

@@ -17,6 +17,14 @@
   },
   "homepage": "https://github.com/Filmbot/longshot#readme",
   "bin": {
-    "longshot": "bin/longshot.js"
+    "longshot": "index.js"
+  },
+  "dependencies": {
+    "colors": "^1.1.2",
+    "config": "^1.21.0",
+    "extend": "^3.0.0",
+    "githubhook": "^1.7.1",
+    "node-ansible": "^0.5.5",
+    "toml": "^2.3.0"
   }
 }
