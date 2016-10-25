@@ -22,6 +22,10 @@ var listenersConfig = config.get('listeners'),
     verbose: false
   }, config.get('default')),
   githubhookConfig = extend({
+    host: '0.0.0.0',
+    port: 3402,
+    secret: '',
+    wildcard: false,
     path: '/longshot',
     logger: (!!defaultConfig.verbose ? console : null),
   }, config.get('githubhook'));
