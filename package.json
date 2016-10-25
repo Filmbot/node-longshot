@@ -1,0 +1,22 @@
+{
+  "name": "longshot",
+  "version": "0.0.1",
+  "description": "Tool for executing ansible tasks based on github-style webhook requests",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Filmbot/longshot.git"
+  },
+  "author": "sbussetti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Filmbot/longshot/issues"
+  },
+  "homepage": "https://github.com/Filmbot/longshot#readme",
+  "bin": {
+    "longshot": "bin/longshot.js"
+  }
+}
