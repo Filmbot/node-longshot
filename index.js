@@ -147,7 +147,10 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 		// ensure projectDir is up to date
 		bootstrapPlaybook
 			.variables( {
-				restart_service: false
+				restart_service: false,
+        repo_url: data.repository.ssh_url,
+        repo_ref: data.ref,
+        repo_sha: data.after
 			} )
 			.exec( {
 				cwd: ansibleConfig.playbookDir
