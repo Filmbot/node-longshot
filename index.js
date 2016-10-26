@@ -62,14 +62,24 @@ github.listen();
 function configurePlaybook ( playbook, lc ) {
 	playbook = playbook.inventory( path.join( ansibleConfig.inventoryDir, lc.inventoryName ) );
 
-	if ( defaultConfig.verbose ) {
-		playbook.on( 'stdout', function ( data ) {
-			console.log( data.toString().cyan );
-		} );
-		playbook.on( 'stderr', function ( data ) {
-			console.log( data.toString().red );
-		} );
-	}
+  playbook.on( 'stdout', function ( data ) {
+    if ( defaultConfig.verbose ) {
+      console.log( data.toString().cyan );
+    }
+  } );
+  playbook.on( 'stderr', function ( data ) {
+    if ( defaultConfig.verbose ) {
+      console.log( data.toString().red );
+    }
+
+    slackWebhook.send( {
+      attachments: [ {
+        color: '#D50200',
+        fallback: '```' + data.toString() + '```',
+        text: data.toString()
+      } ]
+    } );
+  } );
 
 	if ( !!defaultConfig.verbose ) {
 		playbook = playbook.verbose( 'vvvv' );
