@@ -65,14 +65,14 @@ function configurePlaybook ( playbook, lc ) {
 	playbook.on( 'stdout', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().cyan );
-      slackWebhook.send( '```' + data.toString() + '```' );
+			slackWebhook.send( '```' + data.toString() + '```' );
 		}
 	} );
-	
-  playbook.on( 'stderr', function ( data ) {
+
+	playbook.on( 'stderr', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().red );
-      slackWebhook.send( '```' + data.toString() + '```' );
+			slackWebhook.send( '```' + data.toString() + '```' );
 		}
 	} );
 
@@ -137,13 +137,12 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 			bootstrapPlaybook = configurePlaybook( new Ansible.Playbook().playbook( ansibleConfig.bootstrapPlaybook ), lc );
 
 	github.on( pattern, function () {
-		var data = arguments[ arguments.length - 1 ];
-
+		var data = arguments[ arguments.length - 1 ],
+				beginMsg = 'Running [' + lc.playbookName + '] on: ' + data.repository.full_name + ':' + data.ref + '#' + data.after;
 		if ( defaultConfig.verbose ) {
-			console.log( (
-			'Running [' + lc.playbookName + '] on: ' +
-			data.repository.full_name + ':' + data.ref + '#' + data.after ).cyan );
+			console.log( beginMsg.cyan );
 		}
+		slackWebhook.send( beginMsg );
 
 		// ensure projectDir is up to date
 		bootstrapPlaybook
@@ -154,9 +153,6 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 				cwd: ansibleConfig.playbookDir
 			} )
 			.then( function ( res ) {
-
-				playbookSuccess( res, lc );
-
 				playbook
 					.variables( {
 						repo_url: data.repository.ssh_url,
@@ -166,8 +162,14 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 					.exec( {
 						cwd: ansibleConfig.playbookDir
 					} )
-					.then( function (res) { playbookSuccess(res, lc); }, function (err) { playbookError(err, lc); } );
-			}, function (err) { playbookError(err, lc); } );
+					.then( function ( res ) {
+						playbookSuccess( res, lc );
+					}, function ( err ) {
+						playbookError( err, lc );
+					} );
+			}, function ( err ) {
+				playbookError( err, lc );
+			} );
 
 	} );
 } );
