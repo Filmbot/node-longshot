@@ -66,6 +66,14 @@ function configurePlaybook ( playbook, lc ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().cyan );
 		}
+
+		slackWebhook.send( {
+			attachments: [ {
+				color: '#36a64f',
+				fallback: '```' + data.toString() + '```',
+				text: data.toString()
+			} ]
+		} );
 	} );
 	playbook.on( 'stderr', function ( data ) {
 		if ( defaultConfig.verbose ) {
