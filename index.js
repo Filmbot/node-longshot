@@ -156,7 +156,7 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 				cwd: ansibleConfig.playbookDir
 			} )
 			.variables( {
-				restart_service: false
+				restart_service: 'no'
 			} )
 			.then( function ( res ) {
 				playbookSuccess( res );
