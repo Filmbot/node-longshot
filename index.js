@@ -78,13 +78,16 @@ function configurePlaybook ( playbook, lc ) {
 	if ( !!lc.hostLimit ) {
 		playbook = playbook.limit( lc.hostLimit );
 	}
-	if ( !!lc.tags ) {
+	
+  if ( !!lc.tags ) {
 		playbook = playbook.tags( lc.tags );
 	}
-	if ( !!lc.skipTags ) {
+	
+  if ( !!lc.skipTags ) {
 		playbook = playbook.skipTags( lc.skipTags );
 	}
 	return playbook;
+
 }
 
 // set up github listeners
@@ -150,7 +153,9 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 							} ]
 						} );
 					} );
-			} );
+			}, function (err) {
+        console.error(err.toString()); 
+      } );
 
 	} );
 } );
