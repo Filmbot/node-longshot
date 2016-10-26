@@ -65,28 +65,15 @@ function configurePlaybook ( playbook, lc ) {
 	playbook.on( 'stdout', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().cyan );
+      slackWebhook.send( '```' + data.toString() + '```' );
 		}
-
-		slackWebhook.send( {
-			attachments: [ {
-				color: '#36a64f',
-				fallback: '```' + data.toString() + '```',
-				text: data.toString()
-			} ]
-		} );
 	} );
-	playbook.on( 'stderr', function ( data ) {
+	
+  playbook.on( 'stderr', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().red );
+      slackWebhook.send( '```' + data.toString() + '```' );
 		}
-
-		slackWebhook.send( {
-			attachments: [ {
-				color: '#D50200',
-				fallback: '```' + data.toString() + '```',
-				text: data.toString()
-			} ]
-		} );
 	} );
 
 	if ( !!defaultConfig.verbose ) {
@@ -108,7 +95,7 @@ function configurePlaybook ( playbook, lc ) {
 
 }
 
-function playbookSuccess ( res ) {
+function playbookSuccess ( res, lc ) {
 	if ( defaultConfig.verbose ) {
 		console.log( '****** [SUCCESS] ******'.bold.green );
 		console.log( res.output.toString().bold.green );
@@ -124,7 +111,7 @@ function playbookSuccess ( res ) {
 	} );
 }
 
-function playbookError ( err ) {
+function playbookError ( err, lc ) {
 	if ( defaultConfig.verbose ) {
 		console.error( '****** [ERROR] ******'.bold.red );
 		console.error( err.toString().bold.red );
@@ -167,7 +154,8 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 				cwd: ansibleConfig.playbookDir
 			} )
 			.then( function ( res ) {
-				playbookSuccess( res );
+
+				playbookSuccess( res, lc );
 
 				playbook
 					.variables( {
@@ -178,8 +166,8 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 					.exec( {
 						cwd: ansibleConfig.playbookDir
 					} )
-					.then( playbookSuccess, playbookError );
-			}, playbookError );
+					.then( function (res) { playbookSuccess(res, lc); }, function (err) { playbookError(err, lc); } );
+			}, function (err) { playbookError(err, lc); } );
 
 	} );
 } );
