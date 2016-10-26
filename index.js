@@ -90,6 +90,38 @@ function configurePlaybook ( playbook, lc ) {
 
 }
 
+function playbookSuccess ( res ) {
+  if ( defaultConfig.verbose ) {
+    console.log( '****** [SUCCESS] ******'.bold.green );
+    console.log( res.output.toString().bold.green );
+  }
+
+  slackWebhook.send( {
+    attachments: [ {
+      color: '#36a64f',
+      pretext: 'Success! Deploy Details: ' + lc.playbookName,
+      fallback: '*Deploy Details: ' + lc.playbookName + '*' + '\n' + '```' + res.output.toString() + '```',
+      text: res.output.toString()
+    } ]
+  } );
+}
+
+function playbookError ( err ) {
+  if ( defaultConfig.verbose ) {
+    console.error( '****** [ERROR] ******'.bold.red );
+    console.error( err.toString().bold.red );
+  }
+
+  slackWebhook.send( {
+    attachments: [ {
+      color: '#D50200',
+      pretext: 'Error! Deploy Details: ' + lc.playbookName,
+      fallback: '*Deploy Details: ' + lc.playbookName + '*' + '\n' + '```' + res.output.toString() + '```',
+      text: err.toString()
+    } ]
+  } );
+}
+
 // set up github listeners
 Object.keys( listenersConfig ).forEach( function ( k ) {
 	var lc = listenersConfig[ k ],
@@ -113,7 +145,8 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 			.exec( {
 				cwd: ansibleConfig.playbookDir
 			} )
-			.then( function () {
+			.then( function ( res ) {
+        playbookSuccess( res );
 
 				playbook
 					.variables( {
@@ -124,38 +157,8 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 					.exec( {
 						cwd: ansibleConfig.playbookDir
 					} )
-					.then( function ( res ) {
-						if ( defaultConfig.verbose ) {
-							console.log( '****** [SUCCESS] ******'.bold.green );
-							console.log( res.output.toString().bold.green );
-						}
-
-						slackWebhook.send( {
-							attachments: [ {
-								color: '#36a64f',
-								pretext: 'Success! Deploy Details: ' + lc.playbookName,
-								fallback: '*Deploy Details: ' + lc.playbookName + '*' + '\n' + '```' + res.output.toString() + '```',
-								text: res.output.toString()
-							} ]
-						} );
-					}, function ( err ) {
-						if ( defaultConfig.verbose ) {
-							console.error( '****** [ERROR] ******'.bold.red );
-							console.error( err.toString().bold.red );
-						}
-
-						slackWebhook.send( {
-							attachments: [ {
-								color: '#D50200',
-								pretext: 'Error! Deploy Details: ' + lc.playbookName,
-								fallback: '*Deploy Details: ' + lc.playbookName + '*' + '\n' + '```' + res.output.toString() + '```',
-								text: err.toString()
-							} ]
-						} );
-					} );
-			}, function (err) {
-        console.error(err.toString()); 
-      } );
+					.then(playbookSuccess, playbookError);
+			}, playbookError );
 
 	} );
 } );
