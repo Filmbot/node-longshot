@@ -152,11 +152,11 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 
 		// ensure projectDir is up to date
 		bootstrapPlaybook
+			.variables( {
+				restart_service: false
+			} )
 			.exec( {
 				cwd: ansibleConfig.playbookDir
-			} )
-			.variables( {
-				restart_service: 'no'
 			} )
 			.then( function ( res ) {
 				playbookSuccess( res );
