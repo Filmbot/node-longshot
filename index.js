@@ -58,21 +58,32 @@ var slackWebhook = new slack.IncomingWebhook( slackConfig.webhookUrl, slackConfi
 // start github
 github.listen();
 
-
 function configurePlaybook ( playbook, lc ) {
 	playbook = playbook.inventory( path.join( ansibleConfig.inventoryDir, lc.inventoryName ) );
 
 	playbook.on( 'stdout', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().cyan );
-			slackWebhook.send( '```' + data.toString() + '```' );
+      slackWebhook.send( {
+        attachments: [ {
+          mrkdwn_in: ['text'],
+          color: '#00FFFF',
+          text: '```' + data.toString() + '```'
+        } ]
+      } );
 		}
 	} );
 
 	playbook.on( 'stderr', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().red );
-			slackWebhook.send( '```' + data.toString() + '```' );
+      slackWebhook.send( {
+        attachments: [ {
+          mrkdwn_in: ['text'],
+          color: '#FF00FF',
+          text: '```' + data.toString() + '```'
+        } ]
+      } );
 		}
 	} );
 
@@ -103,10 +114,10 @@ function playbookSuccess ( res, lc ) {
 
 	slackWebhook.send( {
 		attachments: [ {
+      mrkdwn_in: ['text'],
 			color: '#36a64f',
 			pretext: 'Success! Deploy Details: ' + lc.playbookName,
-			fallback: '*Deploy Details: ' + lc.playbookName + '*' + '\n' + '```' + res.output.toString() + '```',
-			text: res.output.toString()
+			text: '```' + res.output.toString() + '```'
 		} ]
 	} );
 }
@@ -119,10 +130,10 @@ function playbookError ( err, lc ) {
 
 	slackWebhook.send( {
 		attachments: [ {
+      mrkdwn_in: ['text'],
 			color: '#D50200',
 			pretext: 'Error! Deploy Details: ' + lc.playbookName,
-			fallback: '*Deploy Details: ' + lc.playbookName + '*' + '\n' + '```' + res.output.toString() + '```',
-			text: err.toString()
+			text: '```' + err.toString() + '```'
 		} ]
 	} );
 }
