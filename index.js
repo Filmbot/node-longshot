@@ -110,7 +110,7 @@ function truncateForSlack ( txt ) {
 	if ( !txt ) return '';
 
 	if ( txt.length > 7000 ) {
-		txt = txt.substring( 0, 7000 ) + "\n" + "[Output too long]";
+		txt = "[ Output truncated... ]" + "\n" + txt.substring( txt.length - 7000, txt.length );
 	}
 
 	return txt;
