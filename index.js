@@ -109,7 +109,7 @@ function configurePlaybook ( playbook, lc ) {
 function truncateForSlack ( txt ) {
 	if ( !txt ) return '';
 
-    txt = txt.replace('\\n', "\n");
+    txt = txt.replace("\\n", "\n");
 
 	if ( txt.length > 7000 ) {
 		txt = "[ Output truncated... ]" + "\n\n" + txt.substring( txt.length - 7000, txt.length );
