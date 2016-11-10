@@ -4,38 +4,38 @@
 'use strict;';
 
 var githubhook = require( 'githubhook' ),
-		config = require( 'config' ),
-		Ansible = require( 'node-ansible' ),
-		extend = require( 'extend' ),
-		path = require( 'path' ),
-		colors = require( 'colors' ),
-		slack = require( '@slack/client' );
+	config = require( 'config' ),
+	Ansible = require( 'node-ansible' ),
+	extend = require( 'extend' ),
+	path = require( 'path' ),
+	colors = require( 'colors' ),
+	slack = require( '@slack/client' );
 
 var listenersConfig = config.get( 'listeners' ),
-		ansibleConfig = extend( {
-			projectDir: './',
-			playbookDir: './ansible/',
-			inventoryDir: './ansible/inventory/',
-			verbosity: null
-		}, config.get( 'ansible' ) ),
-		envConfig = extend( {
-		}, config.get( 'env' ) ),
-		defaultConfig = extend( {
-			verbose: false
-		}, config.get( 'default' ) ),
-		githubhookConfig = extend( {
-			host: '0.0.0.0',
-			port: 3402,
-			secret: '',
-			wildcard: false,
-			path: '/longshot',
-			logger: ( !!defaultConfig.verbose ? console : null ),
-		}, config.get( 'githubhook' ) ),
-		slackConfig = extend( {
-			webhookUrl: null,
-			username: 'Longshot',
-			iconUrl: null
-		}, config.get( 'slack' ) );
+	ansibleConfig = extend( {
+		projectDir: './',
+		playbookDir: './ansible/',
+		inventoryDir: './ansible/inventory/',
+		verbosity: null
+	}, config.get( 'ansible' ) ),
+	envConfig = extend( {
+	}, config.get( 'env' ) ),
+	defaultConfig = extend( {
+		verbose: false
+	}, config.get( 'default' ) ),
+	githubhookConfig = extend( {
+		host: '0.0.0.0',
+		port: 3402,
+		secret: '',
+		wildcard: false,
+		path: '/longshot',
+		logger: ( !!defaultConfig.verbose ? console : null ),
+	}, config.get( 'githubhook' ) ),
+	slackConfig = extend( {
+		webhookUrl: null,
+		username: 'Longshot',
+		iconUrl: null
+	}, config.get( 'slack' ) );
 // copy env config into the env
 extend( process.env, envConfig );
 // default all listerners
@@ -53,7 +53,7 @@ Object.keys( listenersConfig ).reduce( function ( acc, k ) {
 
 // instantiate slack and github
 var slackWebhook = new slack.IncomingWebhook( slackConfig.webhookUrl, slackConfig ),
-		github = githubhook( githubhookConfig );
+	github = githubhook( githubhookConfig );
 
 // start github
 github.listen();
@@ -64,26 +64,26 @@ function configurePlaybook ( playbook, lc ) {
 	playbook.on( 'stdout', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().cyan );
-      slackWebhook.send( {
-        attachments: [ {
-          mrkdwn_in: ['text'],
-          color: '#00FFFF',
-          text: '```' + data.toString() + '```'
-        } ]
-      } );
+			slackWebhook.send( {
+				attachments: [ {
+					mrkdwn_in: [ 'text' ],
+					color: '#00FFFF',
+					text: '```' + data.toString() + '```'
+				} ]
+			} );
 		}
 	} );
 
 	playbook.on( 'stderr', function ( data ) {
 		if ( defaultConfig.verbose ) {
 			console.log( data.toString().red );
-      slackWebhook.send( {
-        attachments: [ {
-          mrkdwn_in: ['text'],
-          color: '#FF00FF',
-          text: '```' + data.toString() + '```'
-        } ]
-      } );
+			slackWebhook.send( {
+				attachments: [ {
+					mrkdwn_in: [ 'text' ],
+					color: '#FF00FF',
+					text: '```' + data.toString() + '```'
+				} ]
+			} );
 		}
 	} );
 
@@ -106,6 +106,16 @@ function configurePlaybook ( playbook, lc ) {
 
 }
 
+function truncateForSlack ( txt ) {
+	if ( !txt ) return '';
+
+	if ( txt.length > 7000 ) {
+		txt = txt.substring( 0, 7000 ) + "\n" + "[Output too long]";
+	}
+
+	return txt;
+}
+
 function playbookSuccess ( res, lc ) {
 	if ( defaultConfig.verbose ) {
 		console.log( '****** [SUCCESS] ******'.bold.green );
@@ -114,11 +124,11 @@ function playbookSuccess ( res, lc ) {
 
 	slackWebhook.send( {
 		attachments: [ {
-      mrkdwn_in: ['text'],
+			mrkdwn_in: [ 'text', 'pretext' ],
 			color: '#36a64f',
-			pretext: '****** [SUCCESS] ******',
-      title: lc.playbookName,
-			text: '```' + res.output.toString() + '```'
+			pretext: lc.playbookName,
+			title: '****** [SUCCESS] ******',
+			text: '```' + truncateForSlack( res.output.toString() ) + '```'
 		} ]
 	} );
 }
@@ -131,11 +141,11 @@ function playbookError ( err, lc ) {
 
 	slackWebhook.send( {
 		attachments: [ {
-      mrkdwn_in: ['text'],
+			mrkdwn_in: [ 'text', 'pretext' ],
 			color: '#D50200',
-			pretext: '****** [ERROR] ******',
-      title: lc.playbookName,
-			text: '```' + err.toString() + '```'
+			pretext: lc.playbookName,
+			title: '****** [ERROR] ******',
+			text: '```' + truncateForSlack( err.toString() ) + '```'
 		} ]
 	} );
 }
@@ -143,15 +153,15 @@ function playbookError ( err, lc ) {
 // set up github listeners
 Object.keys( listenersConfig ).forEach( function ( k ) {
 	var lc = listenersConfig[ k ],
-			pattern = [ lc.event, lc.reponame, lc.ref ].filter( function ( c ) {
-				return !!c && c !== '*';
-			} ).join( ':' ),
-			playbook = configurePlaybook( new Ansible.Playbook().playbook( lc.playbookName ), lc ),
-			bootstrapPlaybook = configurePlaybook( new Ansible.Playbook().playbook( ansibleConfig.bootstrapPlaybook ), lc );
+		pattern = [ lc.event, lc.reponame, lc.ref ].filter( function ( c ) {
+			return !!c && c !== '*';
+		} ).join( ':' ),
+		playbook = configurePlaybook( new Ansible.Playbook().playbook( lc.playbookName ), lc ),
+		bootstrapPlaybook = configurePlaybook( new Ansible.Playbook().playbook( ansibleConfig.bootstrapPlaybook ), lc );
 
 	github.on( pattern, function () {
 		var data = arguments[ arguments.length - 1 ],
-				beginMsg = 'Running [' + lc.playbookName + '] on: ' + data.repository.full_name + ':' + data.ref + '#' + data.after;
+			beginMsg = 'Running [' + lc.playbookName + '] on: ' + data.repository.full_name + ':' + data.ref + '#' + data.after;
 		if ( defaultConfig.verbose ) {
 			console.log( beginMsg.cyan );
 		}
@@ -161,9 +171,9 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 		bootstrapPlaybook
 			.variables( {
 				restart_service: false,
-        repo_url: data.repository.ssh_url,
-        repo_ref: data.ref,
-        repo_sha: data.after
+				repo_url: data.repository.ssh_url,
+				repo_ref: data.ref,
+				repo_sha: data.after
 			} )
 			.exec( {
 				cwd: ansibleConfig.playbookDir
