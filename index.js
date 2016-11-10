@@ -109,8 +109,10 @@ function configurePlaybook ( playbook, lc ) {
 function truncateForSlack ( txt ) {
 	if ( !txt ) return '';
 
+    txt = txt.replace('\\n', "\n");
+
 	if ( txt.length > 7000 ) {
-		txt = "[ Output truncated... ]" + "\n" + txt.substring( txt.length - 7000, txt.length );
+		txt = "[ Output truncated... ]" + "\n\n" + txt.substring( txt.length - 7000, txt.length );
 	}
 
 	return txt;
@@ -126,9 +128,9 @@ function playbookSuccess ( res, lc ) {
 		attachments: [ {
 			mrkdwn_in: [ 'text', 'pretext' ],
 			color: '#36a64f',
-			pretext: lc.playbookName,
-			title: '****** [SUCCESS] ******',
-			text: '```' + truncateForSlack( res.output.toString() ) + '```'
+			pretext: '[SUCCESS] *[' + lc.playbookName + ']*',
+			text: '```' + truncateForSlack( res.output.toString() ) + '```',
+            ts: parseInt(new Date().getTime()/1000, 10)
 		} ]
 	} );
 }
@@ -143,9 +145,9 @@ function playbookError ( err, lc ) {
 		attachments: [ {
 			mrkdwn_in: [ 'text', 'pretext' ],
 			color: '#D50200',
-			pretext: lc.playbookName,
-			title: '****** [ERROR] ******',
-			text: '```' + truncateForSlack( err.toString() ) + '```'
+			pretext: '[ERROR] *[' + lc.playbookName + ']*',
+			text: '```' + truncateForSlack( err.toString() ) + '```',
+            ts: parseInt(new Date().getTime()/1000, 10)
 		} ]
 	} );
 }
