@@ -116,7 +116,8 @@ function playbookSuccess ( res, lc ) {
 		attachments: [ {
       mrkdwn_in: ['text'],
 			color: '#36a64f',
-			pretext: 'Success! Deploy Details: ' + lc.playbookName,
+			pretext: '****** [SUCCESS] ******',
+      title: lc.playbookName,
 			text: '```' + res.output.toString() + '```'
 		} ]
 	} );
@@ -132,7 +133,8 @@ function playbookError ( err, lc ) {
 		attachments: [ {
       mrkdwn_in: ['text'],
 			color: '#D50200',
-			pretext: 'Error! Deploy Details: ' + lc.playbookName,
+			pretext: '****** [ERROR] ******',
+      title: lc.playbookName,
 			text: '```' + err.toString() + '```'
 		} ]
 	} );
