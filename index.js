@@ -174,7 +174,6 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 			.variables( {
 				restart_service: false,
 				repo_url: data.repository.ssh_url,
-				repo_ref: data.ref,
 				repo_sha: data.after
 			} )
 			.exec( {
@@ -184,7 +183,6 @@ Object.keys( listenersConfig ).forEach( function ( k ) {
 				playbook
 					.variables( {
 						repo_url: data.repository.ssh_url,
-						repo_ref: data.ref,
 						repo_sha: data.after
 					} )
 					.exec( {
